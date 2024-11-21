@@ -25,7 +25,6 @@
 
   bnf: {
     "Start": [
-      ["COMMENT"],
       ["Node"],
       ["Path"]
     ],
@@ -47,9 +46,13 @@
     ],
     "Path_Config" : [
       ["WORD"],
-      ["WORD SMALL_ARROW PARAMETER_OPEN_BRACKET Edge_Parameter_List PARAMETER_CLOSE_BRACKET Path_Config"],
-      ["WORD BIG_ARROW PARAMETER_OPEN_BRACKET Edge_Parameter_List PARAMETER_CLOSE_BRACKET Path_Config"],
+      ["WORD Path_Edge"],
+      ["OPEN_PARENTHESES Path_Config CLOSE_PARENTHESES Path_Edge"],
       ["OPEN_PARENTHESES Path_Config CLOSE_PARENTHESES"]
+    ],
+    "Path_Edge" : [
+      ["SMALL_ARROW PARAMETER_OPEN_BRACKET Edge_Parameter_List PARAMETER_CLOSE_BRACKET Path_Config"],
+      ["BIG_ARROW PARAMETER_OPEN_BRACKET Edge_Parameter_List PARAMETER_CLOSE_BRACKET Path_Config"]
     ],
     "Edge_Parameter_List": [
       ["Edge_Parameter_List SEMICOLON Edge_Parameter_List"],
