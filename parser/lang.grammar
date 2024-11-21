@@ -1,0 +1,60 @@
+{
+  lex: {
+    rules: [
+      [`\\s+`,       `/* skip whitespace */`],
+      [`\\^--(\\s*\\w*)*`, `return 'COMMENT'`],
+      [`node`,       `return 'NODE_KEYWORD'`],
+      [`path`,       `return 'PATH_KEYWORD'`],
+      [`rot`,        `return 'ROTATIONS_KEYWORD'`],
+      [`rad`,        `return 'RADIUS_KEYWORD'`],
+      [`len`,        `return 'LENGTH_KEYWORD'`],
+      [`phi`,        `return 'ANGLE_KEYWORD'`],
+      [`(\\=\\>)`,   `return 'BIG_ARROW'`],
+      [`(\\-\\>)`,   `return 'SMALL_ARROW'`],
+      [`(\\=)`,      `return 'EQUALS'`],
+      [`(\\[)`,      `return 'PARAMETER_OPEN_BRACKET'`],
+      [`(\\])`,      `return 'PARAMETER_CLOSE_BRACKET'`],
+      [`\\d+`,       `return 'NUMBER'`],
+      [`\\w+`,       `return 'WORD'`],
+      [`\\;`,        `return 'SEMICOLON'`],
+      [`\\.`,        `return 'PERIOD'`],
+      [`\\(`,        `return 'OPEN_PARENTHESES'`],
+      [`\\)`,        `return 'CLOSE_PARENTHESES'`]
+    ]
+  },
+
+  bnf: {
+    "Start": [
+      ["COMMENT"],
+      ["Node"],
+      ["Path"]
+    ],
+    "Continuation": [
+      ["PERIOD Node"],
+      ["PERIOD Path"],
+      ["PERIOD"]
+    ],
+    "Node" : [
+      ["NODE_KEYWORD WORD EQUALS PARAMETER_OPEN_BRACKET Node_Parameter_List PARAMETER_CLOSE_BRACKET Continuation"]
+    ],
+    "Node_Parameter_List" : [
+      ["Node_Parameter_List SEMICOLON Node_Parameter_List"],
+      ["RADIUS_KEYWORD EQUALS NUMBER"],
+      ["ROTATIONS_KEYWORD EQUALS NUMBER"]
+    ],
+    "Path" : [
+      ["PATH_KEYWORD EQUALS Path_Config Continuation"]
+    ],
+    "Path_Config" : [
+      ["WORD"],
+      ["WORD SMALL_ARROW PARAMETER_OPEN_BRACKET Edge_Parameter_List PARAMETER_CLOSE_BRACKET Path_Config"],
+      ["WORD BIG_ARROW PARAMETER_OPEN_BRACKET Edge_Parameter_List PARAMETER_CLOSE_BRACKET Path_Config"],
+      ["OPEN_PARENTHESES Path_Config CLOSE_PARENTHESES"]
+    ],
+    "Edge_Parameter_List": [
+      ["Edge_Parameter_List SEMICOLON Edge_Parameter_List"],
+      ["LENGTH_KEYWORD EQUALS NUMBER"],
+      ["ANGLE_KEYWORD EQUALS NUMBER"]
+    ]
+  }
+}
