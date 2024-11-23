@@ -10,7 +10,7 @@ node n = [rot = 10; rad = 20].
 path = n ->[len=20] n ->[phi=95] n ->[phi=94] (n ->[len=20] n).
 `;
 
-const exampleProgram2 = `
+  const exampleProgram2 = `
 node n = [rot = 10; rad = 20].
 path = n ->[len=20] n ->[phi=95] n.
 `;
@@ -30,7 +30,6 @@ path = n->[l=10;a=90]n.
     const res = await parser.parse(exampleProgram2);
     expect(res).toBeUndefined();
   });
-
 
   test('Example program should fail syntax check', async () => {
     await expect(parser.parse(exampleProgram3))
