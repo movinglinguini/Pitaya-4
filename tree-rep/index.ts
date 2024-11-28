@@ -1,6 +1,10 @@
 export {};
 import { t, StateMachine } from 'typescript-fsm';
 
+const DEFAULT_NODE_NAME = '';
+const DEFAULT_NODE_ROT = 0;
+const DEFAULT_NODE_RADIUS = 0;
+
 enum TokenTypes {
   NODE_KEYWORD = 'NODE_KEYWORD',
   PATH_KEYWORD = 'PATH_KEYWORD',
@@ -37,6 +41,12 @@ type NodeRep = {
   rot : number,
   rad : number,
 };
+
+enum RepBuilderModes {
+  none,
+  node,
+  path,
+}
 
 const parser : {
   parse : (string: string, parseOptions?: Object) => Promise<void>,
@@ -111,7 +121,7 @@ const transitions = [
   t(States.periodORarrow, TokenTypes.BIG_ARROW, States.arrow, doNothing),
 ];
 
-function doNothing() {}
+function doNothing(args: any) {}
 
 const sm = new StateMachine<States, TokenTypes>(
   States.init,
@@ -121,12 +131,27 @@ const sm = new StateMachine<States, TokenTypes>(
 export const repBuilder = ({
   _parser : parser,
   _sm : sm,
+  _mode : RepBuilderModes.none,
+  _newNodeRep : {
+    name : DEFAULT_NODE_NAME,
+    rot : DEFAULT_NODE_ROT,
+    rad : DEFAULT_NODE_RADIUS
+  },
   _nodeReps : new Map<string, NodeRep>(),
   async start (program : string) {
     // initialize parser so that each token acts as a transition in our SM
     this._parser.onShift = (async (token : Token) => {
       // the token value is a token type... trust me :)
       await this._sm.dispatch(token.type as TokenTypes);
+
+      if (token.type == TokenTypes.NODE_KEYWORD) {
+        this._newNodeRep = {
+          name: DEFAULT_NODE_NAME,
+          rot : DEFAULT_NODE_ROT,
+          rad : DEFAULT_NODE_RADIUS,
+        }
+      }
+
       return token;
     });
 
@@ -134,5 +159,18 @@ export const repBuilder = ({
   },
   getSM() {
     return this._sm;
+  },
+  _handleToken(token : Token) {
+    if (token.type == TokenTypes.NODE_KEYWORD) {
+      this._newNodeRep = {
+        name: DEFAULT_NODE_NAME,
+        rot : DEFAULT_NODE_ROT,
+        rad : DEFAULT_NODE_RADIUS,
+      }
+    } else if (token.type == TokenTypes.PARAMETER_CLOSE_BRACKET) {
+      if (this._mode == RepBuilderModes.node) {
+        this._nodeReps.set(this._newNodeRep.name, this._newNodeRep);
+      }
+    }
   }
 });
