@@ -1,6 +1,6 @@
 export {};
 const parser : {
-  parse: (string: string, parseOptions?: Object) => Promise<void>,
+  parse: (string: string, parseOptions?: Object) => void,
   onShift: (token: any) => any,
 } = require('../parser/parser.js');
 
@@ -22,18 +22,16 @@ path = n->[l=10;a=90]n.
 `;
 
   test('Example program should pass syntax check', async () => {
-    const res = await parser.parse(exampleProgram1);
+    const res = parser.parse(exampleProgram1);
     expect(res).toBeUndefined();
   });
 
   test('Example program should pass syntax check', async () => {
-    const res = await parser.parse(exampleProgram2);
+    const res = parser.parse(exampleProgram2);
     expect(res).toBeUndefined();
   });
 
-  test('Example program should fail syntax check', async () => {
-    await expect(parser.parse(exampleProgram3))
-      .rejects
-      .toThrow();
+  test('Example program should fail syntax check', () => {
+    expect(() => parser.parse(exampleProgram3)).toThrow();
   });
 });

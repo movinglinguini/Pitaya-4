@@ -4,6 +4,11 @@ import { t, StateMachine } from 'typescript-fsm';
 const DEFAULT_NODE_NAME = '';
 const DEFAULT_NODE_ROT = 0;
 const DEFAULT_NODE_RADIUS = 0;
+const DEFAULT_NODE_REP = {
+  name : DEFAULT_NODE_NAME,
+  rot : DEFAULT_NODE_ROT,
+  rad : DEFAULT_NODE_RADIUS
+};
 
 enum TokenTypes {
   NODE_KEYWORD = 'NODE_KEYWORD',
@@ -42,135 +47,87 @@ type NodeRep = {
   rad : number,
 };
 
+type PathRep = {
+  edges : {
+    len : number,
+    phi : number,
+    next : PathRep,
+    to : NodeRep,
+  }[]
+};
+
 enum RepBuilderModes {
   none,
   node,
   path,
 }
 
+enum RepParamModes {
+  none,
+  rot,
+  rad,
+}
+
 const parser : {
   parse : (string: string, parseOptions?: Object) => Promise<void>,
-  onShift : (token: Token) => Promise<Token>,
+  onShift : (token: Token) => Token,
 } = require('../parser/parser.js');
-
-export enum States {
-  init,
-  wordNode,
-  wordPath, 
-  nodeKeyword, 
-  pathKeyword, 
-  rotORrad,
-  smcolonORbracketNode,
-  rotationsKeyword, 
-  radiusKeyword, 
-  equalsNode, 
-  openBrackets, 
-  closeBrackets, 
-  period,
-  arrow,
-  openParen,
-  closeParen,
-  lengthKeyword,
-  angleKeyword,
-  lenORphi,
-  equalsPath,
-  smcolonORbracketPath,
-  wordORparen1,
-  wordORparen2,
-  periodORarrow,
-  endDef,
-};
-
-const transitions = [
-  t(States.init, TokenTypes.NODE_KEYWORD, States.nodeKeyword,  doNothing),
-  t(States.init, TokenTypes.PATH_KEYWORD, States.pathKeyword,  doNothing),
-  // Defining nodes
-  t(States.nodeKeyword, TokenTypes.WORD, States.wordNode,  doNothing),
-  t(States.wordNode, TokenTypes.EQUALS, States.equalsNode,  doNothing),
-  // Defining node configs
-  t(States.equalsNode, TokenTypes.PARAMETER_OPEN_BRACKET, States.rotORrad,  doNothing),
-  t(States.rotORrad, TokenTypes.ROTATIONS_KEYWORD, States.wordNode,  doNothing),
-  t(States.rotORrad, TokenTypes.RADIUS_KEYWORD, States.wordNode,  doNothing),
-  t(States.equalsNode, TokenTypes.NUMBER, States.smcolonORbracketNode,  doNothing),
-  t(States.smcolonORbracketNode, TokenTypes.SEMICOLON, States.rotORrad,  doNothing),
-  t(States.smcolonORbracketNode, TokenTypes.PARAMETER_CLOSE_BRACKET, States.closeBrackets,  doNothing),
-  t(States.closeBrackets, TokenTypes.PERIOD, States.period, doNothing),
-  // Defining continuations
-  t(States.period, TokenTypes.NODE_KEYWORD, States.nodeKeyword,  doNothing),
-  t(States.period, TokenTypes.PATH_KEYWORD, States.pathKeyword,  doNothing),
-  // Defining paths
-  t(States.pathKeyword, TokenTypes.EQUALS, States.equalsPath,  doNothing),
-  t(States.equalsPath, TokenTypes.WORD, States.wordPath, doNothing),
-  t(States.wordPath, TokenTypes.SMALL_ARROW, States.arrow,  doNothing),
-  t(States.wordPath, TokenTypes.BIG_ARROW, States.arrow,  doNothing),
-  t(States.arrow, TokenTypes.PARAMETER_OPEN_BRACKET, States.lenORphi, doNothing),
-  t(States.lenORphi, TokenTypes.LENGTH_KEYWORD, States.wordPath, doNothing),
-  t(States.lenORphi, TokenTypes.ANGLE_KEYWORD, States.wordPath, doNothing),
-  t(States.wordPath, TokenTypes.EQUALS, States.equalsPath, doNothing),
-  t(States.equalsPath, TokenTypes.NUMBER, States.smcolonORbracketPath, doNothing),
-  t(States.smcolonORbracketPath, TokenTypes.SEMICOLON, States.lenORphi, doNothing),
-  t(States.smcolonORbracketPath, TokenTypes.PARAMETER_CLOSE_BRACKET, States.wordORparen1, doNothing),
-  t(States.wordORparen1, TokenTypes.WORD, States.wordPath, doNothing),
-  t(States.wordORparen1, TokenTypes.OPEN_PARENTHESES, States.wordORparen2, doNothing),
-  t(States.wordORparen2, TokenTypes.WORD, States.wordPath, doNothing),
-  t(States.wordORparen2, TokenTypes.OPEN_PARENTHESES, States.wordORparen2, doNothing),
-  t(States.wordPath, TokenTypes.CLOSE_PARENTHESES, States.periodORarrow, doNothing),
-  t(States.wordPath, TokenTypes.PERIOD, States.period, doNothing),
-  t(States.periodORarrow, TokenTypes.PERIOD, States.period, doNothing),
-  t(States.periodORarrow, TokenTypes.SMALL_ARROW, States.arrow, doNothing),
-  t(States.periodORarrow, TokenTypes.BIG_ARROW, States.arrow, doNothing),
-];
-
-function doNothing(args: any) {}
-
-const sm = new StateMachine<States, TokenTypes>(
-  States.init,
-  transitions,
-);
 
 export const repBuilder = ({
   _parser : parser,
-  _sm : sm,
   _mode : RepBuilderModes.none,
-  _newNodeRep : {
-    name : DEFAULT_NODE_NAME,
-    rot : DEFAULT_NODE_ROT,
-    rad : DEFAULT_NODE_RADIUS
-  },
+  _paramMode : RepParamModes.none,
+  _newNodeRep : { ...DEFAULT_NODE_REP },
   _nodeReps : new Map<string, NodeRep>(),
-  async start (program : string) {
+  _pathReps : [] as PathRep[],
+  start (program : string) {
     // initialize parser so that each token acts as a transition in our SM
-    this._parser.onShift = (async (token : Token) => {
+    this._parser.onShift = ((token : Token) => {
       // the token value is a token type... trust me :)
-      await this._sm.dispatch(token.type as TokenTypes);
-
-      if (token.type == TokenTypes.NODE_KEYWORD) {
-        this._newNodeRep = {
-          name: DEFAULT_NODE_NAME,
-          rot : DEFAULT_NODE_ROT,
-          rad : DEFAULT_NODE_RADIUS,
-        }
-      }
-
+      this._handleToken(token);
       return token;
     });
 
-    await this._parser.parse(program);
+    this._parser.parse(program);
   },
-  getSM() {
-    return this._sm;
+  reset() {
+    this._mode = RepBuilderModes.none;
+    this._paramMode = RepParamModes.none;
+    this._newNodeRep = { ...DEFAULT_NODE_REP };
+    this._nodeReps = new Map<string, NodeRep>();
+  },
+  getNodeReps() {
+    return this._nodeReps;
   },
   _handleToken(token : Token) {
-    if (token.type == TokenTypes.NODE_KEYWORD) {
+    if (token.type === TokenTypes.NODE_KEYWORD) {
+      this._mode = RepBuilderModes.node;
       this._newNodeRep = {
         name: DEFAULT_NODE_NAME,
         rot : DEFAULT_NODE_ROT,
         rad : DEFAULT_NODE_RADIUS,
       }
-    } else if (token.type == TokenTypes.PARAMETER_CLOSE_BRACKET) {
-      if (this._mode == RepBuilderModes.node) {
+    } else if (token.type === TokenTypes.ROTATIONS_KEYWORD) {
+      this._paramMode = RepParamModes.rot;
+    } else if (token.type === TokenTypes.RADIUS_KEYWORD) {
+      this._paramMode = RepParamModes.rad;
+    } else if (token.type === TokenTypes.WORD) {
+      if (this._mode === RepBuilderModes.node) {
+        this._newNodeRep.name = token.value;
+      }
+    } else if (token.type === TokenTypes.NUMBER) {
+      if (this._paramMode === RepParamModes.rot) {
+        this._newNodeRep.rot = parseFloat(token.value);
+      } else if (this._paramMode === RepParamModes.rad) {
+        this._newNodeRep.rad = parseFloat(token.value);
+      }
+    } else if (token.type === TokenTypes.PARAMETER_CLOSE_BRACKET) {
+      this._paramMode = RepParamModes.none;
+      if (this._mode === RepBuilderModes.node) {
         this._nodeReps.set(this._newNodeRep.name, this._newNodeRep);
       }
+    } else if (token.type === TokenTypes.PERIOD) {
+      this._mode = RepBuilderModes.none;
     }
   }
 });

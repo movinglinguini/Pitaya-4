@@ -14,7 +14,7 @@
       [`(\\=)`,      `return 'EQUALS'`],
       [`(\\[)`,      `return 'PARAMETER_OPEN_BRACKET'`],
       [`(\\])`,      `return 'PARAMETER_CLOSE_BRACKET'`],
-      [`\\d+`,       `return 'NUMBER'`],
+      [`\\d+\\.*\\d*`,`return 'NUMBER'`],
       [`\\w+`,       `return 'WORD'`],
       [`\\;`,        `return 'SEMICOLON'`],
       [`\\.`,        `return 'PERIOD'`],

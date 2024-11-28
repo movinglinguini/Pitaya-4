@@ -128,7 +128,7 @@ const lexRules = [[/^\s+/, function() { /* skip whitespace */ }],
 [/^(\=)/, function() { return 'EQUALS' }],
 [/^(\[)/, function() { return 'PARAMETER_OPEN_BRACKET' }],
 [/^(\])/, function() { return 'PARAMETER_CLOSE_BRACKET' }],
-[/^\d+/, function() { return 'NUMBER' }],
+[/^\d+\.*\d*/, function() { return 'NUMBER' }],
 [/^\w+/, function() { return 'WORD' }],
 [/^\;/, function() { return 'SEMICOLON' }],
 [/^\./, function() { return 'PERIOD' }],
@@ -394,7 +394,7 @@ const yyparse = {
   /**
    * Parses a string.
    */
-  async parse(string, parseOptions) {
+  parse(string, parseOptions) {
     if (!tokenizer) {
       throw new Error(`Tokenizer instance wasn't specified.`);
     }
@@ -454,7 +454,7 @@ const yyparse = {
           };
         }
 
-        shiftedToken = await this.onShift(token);
+        shiftedToken = this.onShift(token);
 
         stack.push(
           {symbol: tokens[shiftedToken.type], semanticValue: shiftedToken.value, loc},
