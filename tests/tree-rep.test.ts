@@ -19,21 +19,14 @@ node n1 = [rot=1; rad=1].
 node n1 = [rot=1.25; rad=20.25].
 `;
 
-  const exampleProgram5 = `
-node n1 = [rot=1.25; rad=20.25].
-node n2 = [rot=1.25; rad=20.25].
-node n3 = [rot=1.25; rad=20.25].
-node n4 = [rot=1.25; rad=20.25].
-path = n1 =>[len=5] n2 =>[len=20] n3 -> [len=20] n4.
-`;
-
 const exampleProgram6 = `
 node n1 = [rot=1.25; rad=20.25].
 node n2 = [rot=1.25; rad=20.25].
 node n3 = [rot=1.25; rad=20.25].
 node n4 = [rot=1.25; rad=20.25].
-path = n1 =>[len=5] (n2 =>[len=20] n3) -> [len=20] n4.
-
+node n5 = [rot=1.25; rad=20.25].
+node n7 = [rot=1.25; rad=20.25].
+path = n1 ->[len=5;phi=90] n4 ->[len=30;phi=270] n5.
 `;
 
   beforeEach(() => {
@@ -66,14 +59,7 @@ path = n1 =>[len=5] (n2 =>[len=20] n3) -> [len=20] n4.
     expect(n?.rad).toBe(20.25);
   });
 
-  test('', () => { 
-    repBuilder.start(exampleProgram5);
-  });
-
-  test('', () => { 
+  test('Exmple should run successfully.', () => { 
     repBuilder.start(exampleProgram6);
-    console.log(JSON.stringify(repBuilder._pathReps));
   });
-
-  
 });

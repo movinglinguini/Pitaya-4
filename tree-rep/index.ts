@@ -7,13 +7,18 @@ const DEFAULT_NODE_RADIUS = 0;
 const DEFAULT_NODE_REP: NodeRep = {
   name : DEFAULT_NODE_NAME,
   rot : DEFAULT_NODE_ROT,
-  rad : DEFAULT_NODE_RADIUS
+  rad : DEFAULT_NODE_RADIUS,
+  x : 0,
+  y : 0,
 };
 const DEFAULT_PATH_REP: PathRep = {
-  edges: [],
+  seed: null,
+  next: null,
+  len: 0,
+  phi: 0,
 }
 const DEFAULT_EDGE_REP: EdgeRep = {
-  seed: copyObject(DEFAULT_NODE_REP),
+  seed: null,
   next: null,
   len: 0,
   phi: 0,
@@ -54,17 +59,22 @@ type NodeRep = {
   name : string,
   rot : number,
   rad : number,
+  x : number,
+  y : number,
 };
 
 type EdgeRep = {
   len : number,
   phi : number,
   next : PathRep | null,
-  seed : NodeRep,
+  seed : NodeRep | null,
 };
 
 type PathRep = {
-  edges : EdgeRep[],
+  seed : NodeRep | null,
+  next : PathRep | null,
+  len : number,
+  phi : number,
 };
 
 enum RepBuilderModes {
@@ -77,6 +87,8 @@ enum RepParamModes {
   none,
   rot,
   rad,
+  len,
+  phi
 }
 
 enum RepArrowModes {
@@ -89,9 +101,13 @@ function copyObject<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));
 }
 
+function toRad(deg : number) : number {
+  return deg * (Math.PI / 180);
+}
+
 const parser : {
   parse : (string: string, parseOptions?: Object) => Promise<void>,
-  onShift : (token: Token) => Token,
+  onShift : (token: Token) => Token | null,
 } = require('../parser/parser.js');
 
 export const repBuilder = ({
@@ -110,14 +126,16 @@ export const repBuilder = ({
       // the token value is a token type... trust me :)
       try {
         this._handleToken(token);
+        return token;
       } catch (err) {
-        console.error(`Error handling token at line ${token.startLine} column ${token.startColumn}.`);
+        console.error(`Error handling token "${token.value}" at line ${token.startLine} column ${token.startColumn}.`);
         console.error(err);
+        return null;
       }
-      return token;
     });
 
     this._parser.parse(program);
+    this._placeSeeds();
   },
   reset() {
     this._mode = RepBuilderModes.none;
@@ -144,6 +162,10 @@ export const repBuilder = ({
       this._paramMode = RepParamModes.rot;
     } else if (token.type === TokenTypes.RADIUS_KEYWORD) {
       this._paramMode = RepParamModes.rad;
+    } else if (token.type === TokenTypes.LENGTH_KEYWORD) {
+      this._paramMode = RepParamModes.len;
+    } else if (token.type === TokenTypes.ANGLE_KEYWORD) {
+      this._paramMode = RepParamModes.phi;
     } else if (token.type === TokenTypes.WORD) {
       if (this._mode === RepBuilderModes.node) {
         this._newNodeRep.name = token.value;
@@ -151,9 +173,7 @@ export const repBuilder = ({
         const nodeName = token.value;
         const nodeDef = this._nodeReps.get(nodeName);
         if (nodeDef) {
-          const newEdge = copyObject(DEFAULT_EDGE_REP);
-          this._pathStack[0].edges.unshift(newEdge);
-          this._pathStack[0].edges[0].seed = nodeDef;
+          this._pathStack[0].seed = nodeDef;
         } else {
           throw `Cannot find node with name "${nodeName}" at line ${token.startLine} column ${token.startColumn}`;
         }
@@ -163,25 +183,21 @@ export const repBuilder = ({
         this._newNodeRep.rot = parseFloat(token.value);
       } else if (this._paramMode === RepParamModes.rad) {
         this._newNodeRep.rad = parseFloat(token.value);
+      } else if (this._paramMode === RepParamModes.len) {
+        this._pathStack[0].len = parseFloat(token.value);
+      } else if (this._paramMode === RepParamModes.phi) {
+        this._pathStack[0].phi = parseFloat(token.value);
       }
     } else if (token.type === TokenTypes.SMALL_ARROW) {
       this._arrowMode = RepArrowModes.small;
-      const pSegment = this._pathStack.shift();
-      (pSegment as PathRep).edges[0].next = copyObject(DEFAULT_PATH_REP);
-      const nextPSegment = pSegment?.edges[0].next;
-      this._pathStack.unshift(nextPSegment as PathRep);
+      const segment = this._pathStack.shift() as PathRep;
+      segment.next = copyObject(DEFAULT_PATH_REP);
+      const nextSegment = segment.next;
+      this._pathStack.unshift(nextSegment);
     } else if (token.type === TokenTypes.BIG_ARROW) {
       this._arrowMode = RepArrowModes.big;
     } else if (token.type === TokenTypes.PARAMETER_CLOSE_BRACKET) {
       this._paramMode = RepParamModes.none;
-    } else if (token.type === TokenTypes.OPEN_PARENTHESES) {
-      const pSegment = this._pathStack[0];
-      (pSegment as PathRep).edges[0].next = copyObject(DEFAULT_PATH_REP);
-      const nextPSegment = pSegment?.edges[0].next;
-      this._pathStack.unshift(nextPSegment as PathRep);
-    } else if (token.type === TokenTypes.CLOSE_PARENTHESES) {
-      this._pathStack.shift();
-      this._pathStack[0].edges.unshift(copyObject(DEFAULT_EDGE_REP));
     } else if (token.type === TokenTypes.PERIOD) {
       if (this._mode === RepBuilderModes.node) {
         this._nodeReps.set(this._newNodeRep.name, this._newNodeRep);
@@ -189,8 +205,32 @@ export const repBuilder = ({
         this._pathReps.push({ ...this._pathRoot });
         this._pathStack = [];
       }
-
       this._mode = RepBuilderModes.none;
     }
+  },
+  /**
+   * Place seeds on the 2D plane
+   */
+  _placeSeeds() {
+    this._pathReps.forEach(pathRep => {
+      let currSegment : PathRep | null = pathRep;
+      let lastX = 0;
+      let lastY = 0;
+
+      while (currSegment !== null) {        
+        const x = Math.cos(toRad(currSegment.phi)) * currSegment.len + lastX;
+        const y = Math.sin(toRad(currSegment.phi)) * currSegment.len + lastY;
+
+        console.log(x, y);
+
+        lastX = x;
+        lastY = y;
+
+        (currSegment.seed as NodeRep).x = x;
+        (currSegment.seed as NodeRep).y = y;
+
+        currSegment = currSegment.next;
+      }
+    });
   }
 });
