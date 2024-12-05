@@ -1,4 +1,4 @@
-import { repBuilder } from '../tree-rep';
+import { repBuilder } from '../rep-builder';
 
 describe('Rep Builder', () => {
   const exampleProgram1 = `
@@ -26,7 +26,7 @@ node n3 = [rot=1.25; rad=20.25].
 node n4 = [rot=1.25; rad=20.25].
 node n5 = [rot=1.25; rad=20.25].
 node n7 = [rot=1.25; rad=20.25].
-path = n1 ->[len=5;phi=90] n4 ->[len=30;phi=270] n5.
+path = n1 ->[len=5;theta=90] n4 ->[len=30; dir=1; theta=270] n5.
 `;
 
   beforeEach(() => {

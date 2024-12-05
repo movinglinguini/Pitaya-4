@@ -7,12 +7,12 @@ const parser : {
 describe('Parse Syntax', () => {
   const exampleProgram1 = `
 node n = [rot = 10; rad = 20].
-path = n ->[len=20] n ->[phi=95] n.
+path = n ->[len=20] n ->[theta=95] n.
 `;
 
   const exampleProgram2 = `
 node n = [rot = 10; rad = 20].
-path = n ->[len=20] n ->[phi=95] n.
+path = n ->[len=20] n ->[theta=95] n.
 `;
 
   const exampleProgram3 = `

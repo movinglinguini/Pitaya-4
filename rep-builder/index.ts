@@ -1,13 +1,43 @@
 export {};
-import { t, StateMachine } from 'typescript-fsm';
+
+import { toRad, copyObject } from '../utils';
+
+type Token = {
+  type : string,
+  value : string,
+  startOffset : number,
+  endOffset : number,
+  startLine : number,
+  endLine : number,
+  startColumn : number,
+  endColumn : number,
+};
+
+export type NodeRep = {
+  name : string,
+  rot : number,
+  rad : number,
+  x : number,
+  y : number,
+  dir : number,
+};
+
+export type PathRep = {
+  seed : NodeRep | null,
+  next : PathRep | null,
+  len : number,
+  theta : number,
+};
 
 const DEFAULT_NODE_NAME = '';
 const DEFAULT_NODE_ROT = 0;
 const DEFAULT_NODE_RADIUS = 0;
+const DEFAULT_NODE_DIR = 1;
 const DEFAULT_NODE_REP: NodeRep = {
   name : DEFAULT_NODE_NAME,
   rot : DEFAULT_NODE_ROT,
   rad : DEFAULT_NODE_RADIUS,
+  dir : DEFAULT_NODE_DIR,
   x : 0,
   y : 0,
 };
@@ -15,13 +45,7 @@ const DEFAULT_PATH_REP: PathRep = {
   seed: null,
   next: null,
   len: 0,
-  phi: 0,
-}
-const DEFAULT_EDGE_REP: EdgeRep = {
-  seed: null,
-  next: null,
-  len: 0,
-  phi: 0,
+  theta: 0,
 }
 
 enum TokenTypes {
@@ -31,6 +55,7 @@ enum TokenTypes {
   RADIUS_KEYWORD = 'RADIUS_KEYWORD',
   LENGTH_KEYWORD = 'LENGTH_KEYWORD',
   ANGLE_KEYWORD = 'ANGLE_KEYWORD',
+  DIR_KEYWORD = 'DIR_KEYWORD',
   BIG_ARROW = 'BIG_ARROW',
   SMALL_ARROW = 'SMALL_ARROW',
   EQUALS = 'EQUALS',
@@ -44,39 +69,6 @@ enum TokenTypes {
   CLOSE_PARENTHESES = 'CLOSE_PARENTHESES'
 }
 
-type Token = {
-  type : string,
-  value : string,
-  startOffset : number,
-  endOffset : number,
-  startLine : number,
-  endLine : number,
-  startColumn : number,
-  endColumn : number,
-}
-
-type NodeRep = {
-  name : string,
-  rot : number,
-  rad : number,
-  x : number,
-  y : number,
-};
-
-type EdgeRep = {
-  len : number,
-  phi : number,
-  next : PathRep | null,
-  seed : NodeRep | null,
-};
-
-type PathRep = {
-  seed : NodeRep | null,
-  next : PathRep | null,
-  len : number,
-  phi : number,
-};
-
 enum RepBuilderModes {
   none,
   node,
@@ -88,21 +80,14 @@ enum RepParamModes {
   rot,
   rad,
   len,
-  phi
+  theta,
+  dir
 }
 
 enum RepArrowModes {
   none,
   big,
   small
-}
-
-function copyObject<T>(obj: T): T {
-  return JSON.parse(JSON.stringify(obj));
-}
-
-function toRad(deg : number) : number {
-  return deg * (Math.PI / 180);
 }
 
 const parser : {
@@ -165,7 +150,9 @@ export const repBuilder = ({
     } else if (token.type === TokenTypes.LENGTH_KEYWORD) {
       this._paramMode = RepParamModes.len;
     } else if (token.type === TokenTypes.ANGLE_KEYWORD) {
-      this._paramMode = RepParamModes.phi;
+      this._paramMode = RepParamModes.theta;
+    } else if (token.type === TokenTypes.DIR_KEYWORD) {
+      this._paramMode = RepParamModes.dir;
     } else if (token.type === TokenTypes.WORD) {
       if (this._mode === RepBuilderModes.node) {
         this._newNodeRep.name = token.value;
@@ -183,10 +170,12 @@ export const repBuilder = ({
         this._newNodeRep.rot = parseFloat(token.value);
       } else if (this._paramMode === RepParamModes.rad) {
         this._newNodeRep.rad = parseFloat(token.value);
+      } else if (this._paramMode === RepParamModes.dir) {
+        this._newNodeRep.dir = parseInt(token.value);
       } else if (this._paramMode === RepParamModes.len) {
         this._pathStack[0].len = parseFloat(token.value);
-      } else if (this._paramMode === RepParamModes.phi) {
-        this._pathStack[0].phi = parseFloat(token.value);
+      } else if (this._paramMode === RepParamModes.theta) {
+        this._pathStack[0].theta = parseFloat(token.value);
       }
     } else if (token.type === TokenTypes.SMALL_ARROW) {
       this._arrowMode = RepArrowModes.small;
@@ -218,10 +207,8 @@ export const repBuilder = ({
       let lastY = 0;
 
       while (currSegment !== null) {        
-        const x = Math.cos(toRad(currSegment.phi)) * currSegment.len + lastX;
-        const y = Math.sin(toRad(currSegment.phi)) * currSegment.len + lastY;
-
-        console.log(x, y);
+        const x = Math.cos(toRad(currSegment.theta)) * currSegment.len + lastX;
+        const y = Math.sin(toRad(currSegment.theta)) * currSegment.len + lastY;
 
         lastX = x;
         lastY = y;

@@ -8,13 +8,14 @@
       [`rot`,        `return 'ROTATIONS_KEYWORD'`],
       [`rad`,        `return 'RADIUS_KEYWORD'`],
       [`len`,        `return 'LENGTH_KEYWORD'`],
-      [`phi`,        `return 'ANGLE_KEYWORD'`],
+      [`theta`,        `return 'ANGLE_KEYWORD'`],
+      [`dir`,        `return 'DIR_KEYWORD'`],
       [`(\\=\\>)`,   `return 'BIG_ARROW'`],
       [`(\\-\\>)`,   `return 'SMALL_ARROW'`],
       [`(\\=)`,      `return 'EQUALS'`],
       [`(\\[)`,      `return 'PARAMETER_OPEN_BRACKET'`],
       [`(\\])`,      `return 'PARAMETER_CLOSE_BRACKET'`],
-      [`\\d+\\.*\\d*`,`return 'NUMBER'`],
+      [`\\-*\\d+\\.*\\d*`, `return 'NUMBER'`],
       [`\\w+`,       `return 'WORD'`],
       [`\\;`,        `return 'SEMICOLON'`],
       [`\\.`,        `return 'PERIOD'`],
@@ -22,6 +23,10 @@
       [`\\)`,        `return 'CLOSE_PARENTHESES'`]
     ]
   },
+
+  operators : [
+    ["left", "SEMICOLON"]
+  ],
 
   bnf: {
     "Start": [
@@ -53,8 +58,9 @@
     ],
     "Edge_Parameter_List": [
       ["Edge_Parameter_List SEMICOLON Edge_Parameter_List"],
+      ["DIR_KEYWORD EQUALS NUMBER"],
       ["LENGTH_KEYWORD EQUALS NUMBER"],
-      ["ANGLE_KEYWORD EQUALS NUMBER"]
+      ["ANGLE_KEYWORD EQUALS NUMBER"],
     ]
   }
 }
