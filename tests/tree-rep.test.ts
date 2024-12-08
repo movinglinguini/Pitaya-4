@@ -62,4 +62,9 @@ path = n1 ->[len=5;theta=90] n4 ->[len=30; dir=1; theta=270] n5.
   test('Exmple should run successfully.', () => { 
     repBuilder.start(exampleProgram6);
   });
+
+  test('Example should generate exactly one path rep.', () => {
+    repBuilder.start(exampleProgram6);
+    expect(repBuilder.getPaths().length).toBe(1);
+  });
 });

@@ -135,6 +135,9 @@ export const repBuilder = ({
   getNodeReps() {
     return this._nodeReps;
   },
+  getPaths() {
+    return this._pathReps;
+  },
   _handleToken(token : Token) {
     if (token.type === TokenTypes.NODE_KEYWORD) {
       this._mode = RepBuilderModes.node;
