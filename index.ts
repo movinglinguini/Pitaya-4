@@ -8,7 +8,7 @@ repBuilder.start(file);
 
 const pulp = generatePulp(repBuilder.getPaths());
 
-const interpreter = readFileSync('./interpreters/dots.js').toString();
+const interpreter = readFileSync('./interpreters/lines.js').toString();
 
 const output = `
 <!DOCTYPE html>

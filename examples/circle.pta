@@ -1,3 +1,9 @@
 node n = [rot=0.5; rad=50].
-node n2 = [rot=-5; rad=10].
-path = n ->[len=100; theta=-90] n -> [len=100; theta=90] n2.
+node n2 = [rot=-1.25; rad=10].
+node n3 = [rot=0.5; rad=30].
+path = n ->[len=100; theta=-90] n 
+  ->[len=10; theta=90] n2 
+  ->[len=25; theta=90] n2
+  ->[len=25; theta=90] n2
+  ->[len=25; theta=90] n2.
+path = n3.
