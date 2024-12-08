@@ -1,7 +1,7 @@
 import { NodeRep, PathRep } from '../rep-builder';
 import { getDistance, lerp, toDeg, toRad } from '../utils';
 
-const THETA_PER_TICK = 0.1;
+const THETA_PER_TICK = 5;
 const RADIUS_STEP_PER_TICK = 0.1;
 const CIRCLE_THETA = 360;
 
@@ -15,22 +15,21 @@ export function generatePulp(paths : PathRep[]) : Pulp[] {
 
   paths.forEach(p => {    
     if (!p.seed) return;
-    const seed: NodeRep = p.seed;
-    const targetRadius = seed.rad;
-
     let currP : PathRep | null = p;
     let arcEnd1 = 0;
-    let radius = seed.rad;
+    let radius = p.seed.rad;
     let radiusStepInterval = 0;
 
     while (currP) {
-      
+      const seed: NodeRep = p.seed;
       const cx = seed.x;
       const cy = seed.y;
       const arcEnd2 = CIRCLE_THETA * seed.rot + arcEnd1;
 
       const startTheta = Math.min(arcEnd1, arcEnd2);
       const endTheta = Math.max(arcEnd1, arcEnd2);
+
+      let targetRadius = seed.rad;
 
       let px : number = 0;
       let py : number = 0;
@@ -42,7 +41,7 @@ export function generatePulp(paths : PathRep[]) : Pulp[] {
         radius = lerp(radius, targetRadius, radiusStepInterval);
         radiusStepInterval = Math.min(1, radiusStepInterval + RADIUS_STEP_PER_TICK);
         
-        px = cx + Math.sin(toRad(theta)) * radius;
+        px = cx + Math.cos(toRad(theta)) * radius;
         py = cy + Math.sin(toRad(theta)) * radius;
 
         // Push in new pulp

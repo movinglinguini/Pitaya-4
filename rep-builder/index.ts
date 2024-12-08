@@ -161,7 +161,7 @@ export const repBuilder = ({
         this._newNodeRep.name = token.value;
       } else if (this._mode === RepBuilderModes.path) {
         const nodeName = token.value;
-        const nodeDef = this._nodeReps.get(nodeName);
+        const nodeDef = copyObject(this._nodeReps.get(nodeName));
         if (nodeDef) {
           this._pathStack[0].seed = nodeDef;
         } else {
