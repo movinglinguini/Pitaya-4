@@ -5,8 +5,8 @@ import { generatePulp } from './pulp-plotter';
 const file = readFileSync('./examples/circle.pta').toString();
 
 repBuilder.start(file);
-const pulp = generatePulp(repBuilder.getPaths());
 
+const pulp = generatePulp(repBuilder.getPaths());
 
 const interpreter = readFileSync('./interpreters/dots.js').toString();
 
@@ -29,6 +29,9 @@ const output = `
     <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
+    <script>
+      const paths = ${JSON.stringify(repBuilder.getPaths())}
+    </script>
     <script>
       const pulp = ${JSON.stringify(pulp)};
     </script>
