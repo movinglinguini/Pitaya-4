@@ -5,7 +5,7 @@ let pulpIdx = 0;
 function setup() {
   createCanvas(400, 400);
   stroke('black');
-  strokeWeight(5);
+  strokeWeight(3);
   background(220);
 }
 

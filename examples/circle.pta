@@ -6,4 +6,4 @@ path = n ->[len=100; theta=-90] n
   ->[len=25; theta=90] n2
   ->[len=25; theta=90] n2
   ->[len=25; theta=90] n2.
-path = n3.
+path = n3. 
