@@ -1,14 +1,22 @@
 import { readFileSync, writeFileSync } from 'fs';
+import yargs, { hide } from 'yargs';
+import { hideBin } from 'yargs/helpers';
+
 import { repBuilder } from './rep-builder';
 import { generatePulp } from './pulp-plotter';
 
-const file = readFileSync('./examples/circle.pta').toString();
+const argv = (yargs(hideBin(process.argv)))
+  .usage('Usage: $0 -f [file] -i [interpreter] -o [output]')
+  .demand(['f', 'i'])
+  .parseSync();
+
+const file = readFileSync((argv.f as string) || './examples/circle.pta').toString();
 
 repBuilder.start(file);
 
 const pulp = generatePulp(repBuilder.getPaths());
 
-const interpreter = readFileSync('./interpreters/dots.js').toString();
+const interpreter = readFileSync((argv.i as string) || './interpreters/dots.js').toString();
 
 const output = `
 <!DOCTYPE html>
@@ -40,7 +48,7 @@ const output = `
 </html>
 `;
 
-writeFileSync('./output/index.html', output);
+writeFileSync((argv.o as string) || './output/index.html', output);
 
 
 
