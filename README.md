@@ -106,6 +106,7 @@ path = n0
 ```
 
 And here's the result:
+
 ![alt text](./example-images/complex-example.png)
 
 ---
