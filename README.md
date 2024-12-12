@@ -87,3 +87,29 @@ path = c0 ->[len=75; theta=-90] c1.
 That should result in the following drawing. Note how the second arc is thicker than in the previous drawing.
 
 ![alt text](./example-images/two-circles-3.png)
+
+
+## One Complex Example
+Here's just one more example to show off what Pitaya can do!
+
+Here's the code:
+```
+node n0 = [rot = 1 ; rad = 0].
+node n1 = [rot = 50 ; rad = 1 ; thetaStep = 0.0001 ; radiusStep = 0.0005].
+node n2 = [rot = -50 ; rad = 1 ; thetaStep = 0.0001 ; radiusStep = 0.0005].
+path = n0 
+        ->[len=100 ; theta = 30] n1 
+        ->[len=100 ; theta = -90] n1.
+path = n0 
+  ->[len=100 ; theta = 210] n2 
+  ->[len=100 ; theta = -90] n2.
+```
+
+And here's the result:
+![alt text](./example-images/complex-example.png)
+
+---
+
+## About Interpreters
+
+To write
