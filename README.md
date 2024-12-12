@@ -84,6 +84,6 @@ node c1 = [rot=-2; rad=10 ; thetaStep = 0.001 ; radiusStep = 0.001].
 path = c0 ->[len=75; theta=-90] c1.
 ```
 
-That should result in the following drawing:
+That should result in the following drawing. Note how the second arc is thicker than in the previous drawing.
 
 ![alt text](./example-images/two-circles-3.png)
