@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "gen-parser": "syntax-cli --grammar ./parser/lang.grammar --mode LALR1 --output ./parser/parser.js",
+    "gen-parser": "syntax-cli --grammar ./src/parser/lang.grammar --mode LALR1 --output ./src/parser/parser.js",
     "build": "npx tsc",
     "test": "jest"
   },

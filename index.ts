@@ -2,8 +2,8 @@ import { copyFile, readFileSync, writeFileSync } from 'fs';
 import yargs, { hide } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import { repBuilder } from './rep-builder';
-import { generatePulp } from './pulp-plotter';
+import { repBuilder } from './src/rep-builder';
+import { generatePulp } from './src/pulp-plotter';
 
 const argv = (yargs(hideBin(process.argv)))
   .usage('Usage: $0 -f [file] -i [interpreter] -o [output-dir]')

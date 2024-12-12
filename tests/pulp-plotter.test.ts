@@ -1,5 +1,5 @@
-import { repBuilder } from "../rep-builder";
-import { generatePulp } from "../pulp-plotter";
+import { repBuilder } from "../src/rep-builder";
+import { generatePulp } from "../src/pulp-plotter";
 
 describe('Generate Pulp', () => {
   const example1 = `

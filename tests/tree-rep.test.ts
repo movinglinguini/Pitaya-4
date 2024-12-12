@@ -1,4 +1,4 @@
-import { repBuilder } from '../rep-builder';
+import { repBuilder } from '../src/rep-builder';
 
 describe('Rep Builder', () => {
   const exampleProgram1 = `

@@ -1,6 +1,6 @@
 export {};
 
-import { toRad, copyObject } from '../utils';
+import { toRad, copyObject } from '../../utils';
 
 type Token = {
   type : string,

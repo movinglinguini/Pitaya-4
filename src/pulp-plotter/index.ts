@@ -1,5 +1,5 @@
 import { NodeRep, PathRep } from '../rep-builder';
-import { getDistance, lerp, toDeg, toRad } from '../utils';
+import { getDistance, lerp, toDeg, toRad } from '../../utils';
 
 const CIRCLE_THETA = 360;
 
