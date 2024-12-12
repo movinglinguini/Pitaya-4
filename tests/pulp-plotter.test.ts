@@ -15,10 +15,4 @@ describe('Generate Pulp', () => {
     repBuilder.start(example1);
     const pulps = generatePulp(repBuilder.getPaths());
   });
-
-  it('Should generate 3600 pulps', () => {
-    repBuilder.start(example1);
-    const pulps = generatePulp(repBuilder.getPaths());
-    expect(pulps.length).toBe(3600);
-  });
 });

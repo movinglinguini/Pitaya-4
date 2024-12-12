@@ -6,10 +6,13 @@
       [`node`,       `return 'NODE_KEYWORD'`],
       [`path`,       `return 'PATH_KEYWORD'`],
       [`rot`,        `return 'ROTATIONS_KEYWORD'`],
+      [`thetaStep`, `return 'THETA_STEP_KEYWORD'`],
+      [`radiusStep`, `return 'RADIUS_STEP_KEYWORD'`],
       [`rad`,        `return 'RADIUS_KEYWORD'`],
       [`len`,        `return 'LENGTH_KEYWORD'`],
       [`theta`,        `return 'ANGLE_KEYWORD'`],
       [`dir`,        `return 'DIR_KEYWORD'`],
+      [`env`,           `return 'ENV_KEYWORD'`],
       [`(\\=\\>)`,   `return 'BIG_ARROW'`],
       [`(\\-\\>)`,   `return 'SMALL_ARROW'`],
       [`(\\=)`,      `return 'EQUALS'`],
@@ -44,7 +47,9 @@
     "Node_Parameter_List" : [
       ["Node_Parameter_List SEMICOLON Node_Parameter_List"],
       ["RADIUS_KEYWORD EQUALS NUMBER"],
-      ["ROTATIONS_KEYWORD EQUALS NUMBER"]
+      ["ROTATIONS_KEYWORD EQUALS NUMBER"],
+      ["THETA_STEP_KEYWORD EQUALS NUMBER"],
+      ["RADIUS_STEP_KEYWORD EQUALS NUMBER"]
     ],
     "Path" : [
       ["PATH_KEYWORD EQUALS Path_Config Continuation"]

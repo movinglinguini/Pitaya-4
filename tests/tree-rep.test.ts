@@ -10,11 +10,6 @@ node n1 = [rot=1; rad=1].
 node n2 = [rot=1; rad=1].
 `;
 
-  const exampleProgram3 = `
-node n1 = [rot=1; rad=1].
-node n1 = [rot=1; rad=1].
-`;
-
   const exampleProgram4 = `
 node n1 = [rot=1.25; rad=20.25].
 `;

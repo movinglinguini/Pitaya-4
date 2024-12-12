@@ -20,6 +20,8 @@ export type NodeRep = {
   x : number,
   y : number,
   dir : number,
+  thetaStep : number,
+  radiusStep : number
 };
 
 export type PathRep = {
@@ -40,22 +42,27 @@ const DEFAULT_NODE_REP: NodeRep = {
   dir : DEFAULT_NODE_DIR,
   x : 0,
   y : 0,
+  thetaStep : 0.01,
+  radiusStep : 0.01,
 };
 const DEFAULT_PATH_REP: PathRep = {
   seed: null,
   next: null,
   len: 0,
   theta: 0,
-}
+};
 
 enum TokenTypes {
   NODE_KEYWORD = 'NODE_KEYWORD',
   PATH_KEYWORD = 'PATH_KEYWORD',
+  ENV_KEYWORD = 'ENV_KEYWORD',
   ROTATIONS_KEYWORD = 'ROTATIONS_KEYWORD',
   RADIUS_KEYWORD = 'RADIUS_KEYWORD',
   LENGTH_KEYWORD = 'LENGTH_KEYWORD',
   ANGLE_KEYWORD = 'ANGLE_KEYWORD',
   DIR_KEYWORD = 'DIR_KEYWORD',
+  THETA_STEP_KEYWORD = 'THETA_STEP_KEYWORD',
+  RADIUS_STEP_KEYWORD = 'RADIUS_STEP_KEYWORD',
   BIG_ARROW = 'BIG_ARROW',
   SMALL_ARROW = 'SMALL_ARROW',
   EQUALS = 'EQUALS',
@@ -81,12 +88,13 @@ enum RepParamModes {
   rad,
   len,
   theta,
-  dir
+  dir,
+  thetaStep,
+  radiusStep,
 }
 
 enum RepArrowModes {
   none,
-  big,
   small
 }
 
@@ -146,6 +154,10 @@ export const repBuilder = ({
       this._mode = RepBuilderModes.path;
       this._pathRoot = copyObject(DEFAULT_PATH_REP);
       this._pathStack.push(this._pathRoot);
+    } else if (token.type === TokenTypes.THETA_STEP_KEYWORD) {
+      this._paramMode = RepParamModes.thetaStep;
+    } else if (token.type === TokenTypes.RADIUS_STEP_KEYWORD) {
+      this._paramMode = RepParamModes.radiusStep;
     } else if (token.type === TokenTypes.ROTATIONS_KEYWORD) {
       this._paramMode = RepParamModes.rot;
     } else if (token.type === TokenTypes.RADIUS_KEYWORD) {
@@ -179,6 +191,10 @@ export const repBuilder = ({
         this._pathStack[0].len = parseFloat(token.value);
       } else if (this._paramMode === RepParamModes.theta) {
         this._pathStack[0].theta = parseFloat(token.value);
+      } else if (this._paramMode === RepParamModes.thetaStep) {
+        this._newNodeRep.thetaStep = parseFloat(token.value);
+      } else if (this._paramMode === RepParamModes.radiusStep) {
+        this._newNodeRep.radiusStep = parseFloat(token.value);
       }
     } else if (token.type === TokenTypes.SMALL_ARROW) {
       this._arrowMode = RepArrowModes.small;
@@ -186,8 +202,6 @@ export const repBuilder = ({
       segment.next = copyObject(DEFAULT_PATH_REP);
       const nextSegment = segment.next;
       this._pathStack.unshift(nextSegment);
-    } else if (token.type === TokenTypes.BIG_ARROW) {
-      this._arrowMode = RepArrowModes.big;
     } else if (token.type === TokenTypes.PARAMETER_CLOSE_BRACKET) {
       this._paramMode = RepParamModes.none;
     } else if (token.type === TokenTypes.PERIOD) {

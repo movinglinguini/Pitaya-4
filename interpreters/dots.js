@@ -1,4 +1,4 @@
-const container = document.querySelector('#container');
+const drawEvery = 100;
 
 let pulpIdx = 0;
 
@@ -10,9 +10,12 @@ function setup() {
 }
 
 function draw() {
-  if (pulpIdx <= pulp.length - 1) {
-    const p = pulp[pulpIdx];
-    point(p.x + width * 0.5, p.y + height * 0.5);
-    pulpIdx += 1;
+  for (let i = pulpIdx; i < pulpIdx + drawEvery; i += 1) {
+    if (i <= pulp.length - 1) {
+      const p = pulp[i];
+      point(p.x + width * 0.5, p.y + height * 0.5);
+    }
   }
+
+  pulpIdx += drawEvery;
 }
