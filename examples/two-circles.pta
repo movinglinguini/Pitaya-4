@@ -1,0 +1,2 @@
+node c = [rot=-1; rad=50].
+path = c ->[len=75; theta=-90] c.

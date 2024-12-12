@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'fs';
+import { copyFile, readFileSync, writeFileSync } from 'fs';
 import yargs, { hide } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
@@ -6,8 +6,20 @@ import { repBuilder } from './rep-builder';
 import { generatePulp } from './pulp-plotter';
 
 const argv = (yargs(hideBin(process.argv)))
-  .usage('Usage: $0 -f [file] -i [interpreter] -o [output]')
+  .usage('Usage: $0 -f [file] -i [interpreter] -o [output-dir]')
   .demand(['f', 'i'])
+  .option('f', {
+    type : 'string',
+    description : 'Input file.',
+  })
+  .option('i', {
+    type : 'string',
+    description : 'File defining an interpreter.',
+  })
+  .option('o', {
+    type : 'string',
+    description : 'Output directory. Defaults to "./output".',
+  })
   .parseSync();
 
 const file = readFileSync((argv.f as string) || './examples/circle.pta').toString();
@@ -48,7 +60,12 @@ const output = `
 </html>
 `;
 
-writeFileSync((argv.o as string) || './output/index.html', output);
+writeFileSync(`${(argv.o as string) || './output'}/index.html`, output);
+copyFile('./deps/p5.min.js', `${(argv.o as string) || './output'}/p5.min.js`, (err) => {
+  if (err) {
+    throw err;
+  }
+});
 
 
 
