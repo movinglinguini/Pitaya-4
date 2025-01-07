@@ -2,11 +2,11 @@ export {};
 const parser : {
   parse: (string: string, parseOptions?: Object) => void,
   onShift: (token: any) => any,
-} = require('../parser/parser.js');
+} = require('../src/parser/parser.js');
 
 describe('Parse Syntax', () => {
   const exampleProgram1 = `
-node n = [rot = 10; rad = 20].
+node n = [rot = 10; rad = 20; color = #12345678].
 path = n ->[len=20] n ->[theta=95] n.
 `;
 

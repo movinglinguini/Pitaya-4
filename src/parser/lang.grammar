@@ -13,6 +13,8 @@
       [`theta`,        `return 'ANGLE_KEYWORD'`],
       [`dir`,        `return 'DIR_KEYWORD'`],
       [`env`,           `return 'ENV_KEYWORD'`],
+      [`color`,       `return 'COLOR_KEYWORD'`],
+      [`\\#[a-fA-F0-9]{3,8}`,   `return 'HEXADECIMAL'`],
       [`(\\=\\>)`,   `return 'BIG_ARROW'`],
       [`(\\-\\>)`,   `return 'SMALL_ARROW'`],
       [`(\\=)`,      `return 'EQUALS'`],
@@ -49,7 +51,8 @@
       ["RADIUS_KEYWORD EQUALS NUMBER"],
       ["ROTATIONS_KEYWORD EQUALS NUMBER"],
       ["THETA_STEP_KEYWORD EQUALS NUMBER"],
-      ["RADIUS_STEP_KEYWORD EQUALS NUMBER"]
+      ["RADIUS_STEP_KEYWORD EQUALS NUMBER"],
+      ["COLOR_KEYWORD EQUALS HEXADECIMAL"]
     ],
     "Path" : [
       ["PATH_KEYWORD EQUALS Path_Config Continuation"]

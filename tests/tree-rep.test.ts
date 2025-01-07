@@ -11,7 +11,7 @@ node n2 = [rot=1; rad=1].
 `;
 
   const exampleProgram4 = `
-node n1 = [rot=1.25; rad=20.25].
+node n1 = [rot=1.25; rad=20.25; color=#123abc].
 `;
 
 const exampleProgram6 = `
@@ -52,6 +52,7 @@ path = n1 ->[len=5;theta=90] n4 ->[len=30; dir=1; theta=270] n5.
 
     expect(n?.rot).toBe(1.25);
     expect(n?.rad).toBe(20.25);
+    expect(n?.color).toBe('#123abc');
   });
 
   test('Exmple should run successfully.', () => { 

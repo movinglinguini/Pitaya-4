@@ -21,7 +21,8 @@ export type NodeRep = {
   y : number,
   dir : number,
   thetaStep : number,
-  radiusStep : number
+  radiusStep : number,
+  color: string,
 };
 
 export type PathRep = {
@@ -44,6 +45,7 @@ const DEFAULT_NODE_REP: NodeRep = {
   y : 0,
   thetaStep : 0.01,
   radiusStep : 0.01,
+  color : '#000000'
 };
 const DEFAULT_PATH_REP: PathRep = {
   seed: null,
@@ -61,6 +63,7 @@ enum TokenTypes {
   LENGTH_KEYWORD = 'LENGTH_KEYWORD',
   ANGLE_KEYWORD = 'ANGLE_KEYWORD',
   DIR_KEYWORD = 'DIR_KEYWORD',
+  COLOR_KEYWORD = 'COLOR_KEYWORD',
   THETA_STEP_KEYWORD = 'THETA_STEP_KEYWORD',
   RADIUS_STEP_KEYWORD = 'RADIUS_STEP_KEYWORD',
   BIG_ARROW = 'BIG_ARROW',
@@ -69,6 +72,7 @@ enum TokenTypes {
   PARAMETER_OPEN_BRACKET = 'PARAMETER_OPEN_BRACKET',
   PARAMETER_CLOSE_BRACKET = 'PARAMETER_CLOSE_BRACKET',
   NUMBER = 'NUMBER',
+  HEXADECIMAL = 'HEXADECIMAL',
   WORD = 'WORD',
   SEMICOLON = 'SEMICOLON',
   PERIOD = 'PERIOD',
@@ -91,6 +95,7 @@ enum RepParamModes {
   dir,
   thetaStep,
   radiusStep,
+  color,
 }
 
 enum RepArrowModes {
@@ -168,6 +173,8 @@ export const repBuilder = ({
       this._paramMode = RepParamModes.theta;
     } else if (token.type === TokenTypes.DIR_KEYWORD) {
       this._paramMode = RepParamModes.dir;
+    } else if (token.type === TokenTypes.COLOR_KEYWORD) {
+      this._paramMode = RepParamModes.color;
     } else if (token.type === TokenTypes.WORD) {
       if (this._mode === RepBuilderModes.node) {
         this._newNodeRep.name = token.value;
@@ -196,6 +203,8 @@ export const repBuilder = ({
       } else if (this._paramMode === RepParamModes.radiusStep) {
         this._newNodeRep.radiusStep = parseFloat(token.value);
       }
+    } else if (token.type === TokenTypes.HEXADECIMAL) {
+      this._newNodeRep.color = token.value;
     } else if (token.type === TokenTypes.SMALL_ARROW) {
       this._arrowMode = RepArrowModes.small;
       const segment = this._pathStack.shift() as PathRep;

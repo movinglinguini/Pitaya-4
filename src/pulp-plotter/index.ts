@@ -7,6 +7,7 @@ export type Pulp = {
   x : number,
   y : number,
   p : number,
+  color : string,
 };
 
 export function generatePulp(paths : PathRep[]) : Pulp[] {
@@ -49,6 +50,7 @@ export function generatePulp(paths : PathRep[]) : Pulp[] {
           x: px,
           y: py,
           p : pidx,
+          color : seed.color,
         });
       }
 
