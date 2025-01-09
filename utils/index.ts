@@ -20,3 +20,12 @@ export function getDistance(x1 : number, y1 : number, x2 : number, y2 : number) 
 export function lerp(from: number, to: number, interval: number) {
   return from + (to - from) * interval;
 }
+
+export function getRandom(from : number, to : number) {
+  return Math.random() * (to - from) + from;
+}
+
+export function chooseRandom(arr: any[]) {
+  const idx = Math.floor(getRandom(0, arr.length));
+  return arr[idx];
+}

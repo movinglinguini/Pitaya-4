@@ -4,27 +4,29 @@ import { hideBin } from 'yargs/helpers';
 
 import { repBuilder } from './src/rep-builder';
 import { generatePulp } from './src/pulp-plotter';
+import { generateProgram, GeneratorOptions } from './generate';
 
 const argv = (yargs(hideBin(process.argv)))
-  .usage('Usage: $0 -f [file] -i [interpreter] -o [output-dir]')
-  .demand(['f', 'i'])
-  .option('f', {
+  .usage('Usage: $0 -c [configuration] -i [interpreter] -o [output-dir]')
+  .demand(['c', 'o', 'i'])
+  .option('c', {
     type : 'string',
-    description : 'Input file.',
-  })
-  .option('i', {
-    type : 'string',
-    description : 'File defining an interpreter.',
+    description : 'Configuration file',
   })
   .option('o', {
     type : 'string',
-    description : 'Output directory. Defaults to "./output".',
+    description : 'Output directory.',
+  })
+  .option('i', {
+    type: 'string',
+    description: 'Interpreter file.'
   })
   .parseSync();
 
-const file = readFileSync((argv.f as string) || './examples/circle.pta').toString();
+const genOptions : GeneratorOptions = JSON.parse(readFileSync((argv.c as string)).toString());
+const program = generateProgram(genOptions);
 
-repBuilder.start(file);
+repBuilder.start(program);
 
 const pulp = generatePulp(repBuilder.getPaths());
 
